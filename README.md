@@ -5,7 +5,7 @@ Informal, casual, uses slang
 
 ## Installation
 
-Requires Python 3.
+Requires Python 3.6 or above.
 
 ### Install the dependencies
 
