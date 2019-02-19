@@ -27,7 +27,7 @@ EVENING_RESP = [
 NIGHT_RESP = [
     "Up so late?",
     "Why are you awake?",
-    "Why not sleeping?"
+    "Why not sleeping?",
 ]
 
 
@@ -76,6 +76,7 @@ HOWRU = [
     "how are you doing",
     "how have you been",
     "how are you doing today",
+    "how've you been",
     "how is your day going",
     "what's up",
     "whats up",
@@ -86,7 +87,8 @@ HOWRU = [
 HOWRU_RESP = [
     "I'm good. You?",
     "Thanks, I'm fine. What about you?",
-    "Good, thanks. How are you?"
+    "Good, thanks. How are you?",
+    "Fine, how about yourself?"
 ]
 
 THANKS = [
@@ -99,6 +101,7 @@ THANKS_RESP = [
     "You're welcome.",
     "No problem.",
     "Don't mention it.",
+    "You're more than welcome.",
 ]
 
 GOODBYE = [

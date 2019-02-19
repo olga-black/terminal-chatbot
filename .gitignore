@@ -1,4 +1,6 @@
 mybot2.py
 mybot_wrk.py
+mytests.py
+prev_replies.py
 *.pyc
 *.log

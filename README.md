@@ -19,7 +19,7 @@ You can run the script by calling it from the command line.
 
 ## Exit
 
-Say goodbye to the bot or Ctrl+D
+Say goodbye to the bot or press Ctrl+C or Ctrl+D
 
 ## License
-Copyright (c) 2018 olga-black
+Copyright (c) 2018-2019 olga-black

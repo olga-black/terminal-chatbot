@@ -3,10 +3,9 @@
 Chatbot for live chatting in terminal
 Informal, casual, uses slang
 Run 'python3 mybot.py'
-Exit with Ctrl+D or say goodbye
+Exit with  Ctrl+C, Ctrl+D or say goodbye
 """
 
-import os
 import time
 import sys
 import random
@@ -31,6 +30,9 @@ BOTNAME = "Coolbot"
 PUNCT = list(string.punctuation)
 PUNCT.pop(PUNCT.index("'"))
 
+# Store previous replies in order to avoid repetition
+prev = ['', '', '']
+
 def preprocess(user_msg):
     """
     Input: user input string
@@ -43,13 +45,12 @@ def preprocess(user_msg):
     user_msg = user_msg.lower()
     return user_msg
 
-def check_membership(user_msg, user_kwds):
+def lookup(user_msg, user_kwds):
     """
     Input: user input string, list of user message keywords
     Output: boolean
     Check if user input contains a keyword from the list
     """
-    user_msg = preprocess(user_msg)
     for msg in user_kwds:
         if len(msg.split()) == 1:
             user_msg_lst = nltk.word_tokenize(user_msg)
@@ -76,7 +77,7 @@ def addspace():
     return {"user_msg": "", "r": ""}
 
 
-def respond(response):
+def format_response(response):
     """
     Build response output template
     Not including the response message
@@ -107,60 +108,82 @@ def daytime_response():
         resp_choice = NIGHT_RESP
     return random.choice(resp_choice)
 
+def get_user_input():
+    """
+    Print out the user input prompt and let user type in their message
+    Print out the timestamp
+    Output: unprocessed user message as string
+    """
+    user_msg = input("{} {}::  ".format(YOURNAME, addspace()["user_msg"]))
+    timestamp = time.asctime()[11:19]
+    print(" "  * 50 + "/" + timestamp)
+    return user_msg
+
+
+def respond(user_msg):
+    """Process the user message and select an appropriate response"""
+
+    user_msg = preprocess(user_msg)
+
+    global prev
+
+    while True:
+
+        # Look up keywords to select an appropriate reply
+
+        if lookup(user_msg, GREETINGS):
+            response = random.choice(GREET_RESPONSES)
+
+        elif lookup(user_msg, HOWRU):
+            response = random.choice(HOWRU_RESP)
+
+        elif lookup(user_msg, THANKS):
+            response = random.choice(THANKS_RESP)
+
+        elif lookup(user_msg, GOODBYE):
+            response = random.choice(GOODBYE_RESP)
+
+        # If no keywords were matched, select a random reply
+
+        else:
+            response = random.choice(NONSPEC_RESPONSES)
+            # if a daytime-specific reply was randomly chosen,
+            # determine the current time of the day
+            # and select an appropriate comment
+            if response == DAYTIME_CHOICE:
+                response = daytime_response()
+
+        if response not in prev:
+            break
+
+    prev[0], prev[1], prev[2] = prev[1], prev[2], response
+
+    return response
+
+
 if __name__ == "__main__":
 
     YOURNAME = input(NAME_PROMPT)
 
     logger.info(f"Conversation started with {YOURNAME}")
 
-    GREETING = respond(INIT_GREET.format(**{"user": YOURNAME, "bot": BOTNAME}))
-
-    # Store previous replies in order to avoid repetion
-    prev_reply = ["", "", ""]
+    GREETING = format_response(INIT_GREET.format(**{"user": YOURNAME, "bot": BOTNAME}))
 
     while True:
 
         try:
 
             # Print out the user input prompt and let user type in their message
-            user_msg = input("{} {}::  ".format(YOURNAME, addspace()["user_msg"]))
-            timestamp = time.asctime()[11:19]
-            print(" "  * 50 + "/" + timestamp)
-            if not user_msg[-1].isalpha():
-                user_msg = user_msg[0:-1]
+            user_msg = get_user_input()
 
-            # Look up keywords to select an appropriate reply
+            # Process the message and select a response
+            response = respond(user_msg)
 
-            if check_membership(user_msg, GREETINGS):
-                response = random.choice(GREET_RESPONSES)
-
-            elif check_membership(user_msg, HOWRU):
-                response = random.choice(HOWRU_RESP)
-
-            elif check_membership(user_msg, THANKS):
-                response = random.choice(THANKS_RESP)
-
-            elif check_membership(user_msg, GOODBYE):
-                response = random.choice(GOODBYE_RESP)
-
-            # If no keywords were matched, select a random reply
-
-            else:
-                while True:
-                    response = random.choice(NONSPEC_RESPONSES)
-                    # if a daytime-specific reply was randomly chosen,
-                    # determine the current time of the day
-                    # and select an appropriate comment
-                    if response == DAYTIME_CHOICE:
-                        response = daytime_response()
-                    if response not in prev_reply:
-                        break
-                prev_reply[0], prev_reply[1], prev_reply[2] = prev_reply[1],\
-                                                        prev_reply[2], response
-            respond(response)
+            # Print out bot's response in a formatted way
+            format_response(response)
 
             # If user said goodbye, quit the script
-            if check_membership(user_msg, GOODBYE):
+            if response in GOODBYE_RESP:
                 logger.info("User said goodbye, conversation terminated")
                 sys.exit()
 
